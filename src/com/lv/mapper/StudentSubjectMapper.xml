@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lv.dao.StudentSubjectMapper">
+  <resultMap id="BaseResultMap" type="com.lv.po.StudentSubject">
+    <id column="ss_id" jdbcType="INTEGER" property="ssId" />
+    <result column="s_id" jdbcType="INTEGER" property="sId" />
+    <result column="sub_id" jdbcType="INTEGER" property="subId" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    ss_id, s_id, sub_id
+  </sql>
+  <select id="selectByExample" parameterType="com.lv.po.StudentSubjectExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from student_subject
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from student_subject
+    where ss_id = #{ssId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from student_subject
+    where ss_id = #{ssId,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.lv.po.StudentSubjectExample">
+    delete from student_subject
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.lv.po.StudentSubject">
+    insert into student_subject (ss_id, s_id, sub_id
+      )
+    values (#{ssId,jdbcType=INTEGER}, #{sId,jdbcType=INTEGER}, #{subId,jdbcType=INTEGER}
+      )
+  </insert>
+   <insert id="insertMore" parameterType="java.util.List">
+    insert into student_subject (s_id, sub_id
+      )
+    values
+    <foreach collection="list" item="studentSubject" separator="," close=";">
+    	(#{studentSubject.sId},#{studentSubject.subId})
+    </foreach>
+  </insert>
+  <insert id="insertSelective" parameterType="com.lv.po.StudentSubject">
+    insert into student_subject
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="ssId != null">
+        ss_id,
+      </if>
+      <if test="sId != null">
+        s_id,
+      </if>
+      <if test="subId != null">
+        sub_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="ssId != null">
+        #{ssId,jdbcType=INTEGER},
+      </if>
+      <if test="sId != null">
+        #{sId,jdbcType=INTEGER},
+      </if>
+      <if test="subId != null">
+        #{subId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.lv.po.StudentSubjectExample" resultType="java.lang.Long">
+    select count(*) from student_subject
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update student_subject
+    <set>
+      <if test="record.ssId != null">
+        ss_id = #{record.ssId,jdbcType=INTEGER},
+      </if>
+      <if test="record.sId != null">
+        s_id = #{record.sId,jdbcType=INTEGER},
+      </if>
+      <if test="record.subId != null">
+        sub_id = #{record.subId,jdbcType=INTEGER},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update student_subject
+    set ss_id = #{record.ssId,jdbcType=INTEGER},
+      s_id = #{record.sId,jdbcType=INTEGER},
+      sub_id = #{record.subId,jdbcType=INTEGER}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.lv.po.StudentSubject">
+    update student_subject
+    <set>
+      <if test="sId != null">
+        s_id = #{sId,jdbcType=INTEGER},
+      </if>
+      <if test="subId != null">
+        sub_id = #{subId,jdbcType=INTEGER},
+      </if>
+    </set>
+    where ss_id = #{ssId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.lv.po.StudentSubject">
+    update student_subject
+    set s_id = #{sId,jdbcType=INTEGER},
+      sub_id = #{subId,jdbcType=INTEGER}
+    where ss_id = #{ssId,jdbcType=INTEGER}
+  </update>
+</mapper>

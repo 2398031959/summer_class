@@ -1,0 +1,9 @@
+@CHARSET "UTF-8";
+
+.row {
+	margin-top: 5px;
+}
+
+body {
+	background:url("../image/login.jpg") no-repeat center center fixed; background-size:100%;
+}

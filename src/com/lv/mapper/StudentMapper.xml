@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lv.dao.StudentMapper">
+	<resultMap id="BaseResultMap" type="com.lv.po.Student">
+		<id column="s_id" jdbcType="INTEGER" property="sId" />
+		<result column="s_name" jdbcType="VARCHAR" property="sName" />
+		<result column="s_sex" jdbcType="CHAR" property="sSex" />
+		<result column="s_class" jdbcType="INTEGER" property="sClass" />
+		<result column="s_classtype" jdbcType="INTEGER" property="sClasstype" />
+		<result column="s_phone" jdbcType="VARCHAR" property="sPhone" />
+		<result column="s_address" jdbcType="VARCHAR" property="sAddress" />
+		<result column="s_date" jdbcType="TIMESTAMP" property="sDate" />
+		<result column="s_tuition" jdbcType="INTEGER" property="sTuition" />
+		<result column="s_pwd" jdbcType="VARCHAR" property="sPwd" />
+	</resultMap>
+	<resultMap id="BaseResultMapWithOther" type="com.lv.po.Student">
+		<id column="s_id" jdbcType="INTEGER" property="sId" />
+		<result column="s_name" jdbcType="VARCHAR" property="sName" />
+		<result column="s_sex" jdbcType="CHAR" property="sSex" />
+		<result column="s_class" jdbcType="INTEGER" property="sClass" />
+		<result column="s_classtype" jdbcType="INTEGER" property="sClasstype" />
+		<result column="s_phone" jdbcType="VARCHAR" property="sPhone" />
+		<result column="s_address" jdbcType="VARCHAR" property="sAddress" />
+		<result column="s_date" jdbcType="TIMESTAMP" property="sDate" />
+		<result column="s_tuition" jdbcType="INTEGER" property="sTuition" />
+		<result column="s_pwd" jdbcType="VARCHAR" property="sPwd" />
+		<association property="studentClass" javaType="StudentClass">
+			<result column="c_name" property="cName" />
+		</association>
+		<association property="classType" javaType="ClassType">
+			<result column="ct_name" property="ctName" />
+		</association>
+		<collection property="subjects" ofType="Subject">
+			<id column="subject_id" property="subId"/>
+			<result column="sub_name" property="subName" />
+		</collection>
+	</resultMap>
+	<sql id="Example_Where_Clause">
+		<where>
+			<foreach collection="oredCriteria" item="criteria" separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" prefixOverrides="and" suffix=")">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach close=")" collection="criterion.value" item="listItem"
+										open="(" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<sql id="Update_By_Example_Where_Clause">
+		<where>
+			<foreach collection="example.oredCriteria" item="criteria"
+				separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" prefixOverrides="and" suffix=")">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach close=")" collection="criterion.value" item="listItem"
+										open="(" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<sql id="Base_Column_List">
+		s_id, s_name, s_sex, s_class, s_classtype, s_phone,
+		s_address, s_date,
+		s_tuition,
+		s_pwd
+	</sql>
+	<select id="selectByExample" parameterType="com.lv.po.StudentExample"
+		resultMap="BaseResultMap">
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from student
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+	</select>
+	<select id="selectByPhoneAndPwd" parameterType="Student"
+		resultMap="BaseResultMapWithOther">
+		SELECT student.*,c_name,ct_name,sub_name,subject.sub_id subject_id FROM student
+		LEFT
+		JOIN class ON class.c_id=s_class
+		LEFT JOIN class_type ON
+		class_type.ct_id=s_classtype
+		LEFT JOIN student_subject ON
+		student_subject.s_id=student.s_id
+		LEFT JOIN subject ON
+		student_subject.sub_id=subject.sub_id
+		where s_phone=#{sPhone} and
+		s_pwd=#{sPwd}
+	</select>
+	<select id="selectAllStudent" resultMap="BaseResultMapWithOther">
+		SELECT student.*,c_name,ct_name FROM student
+		LEFT JOIN class ON class.c_id=s_class
+		LEFT JOIN class_type ON class_type.ct_id=s_classtype
+	</select>
+	<select id="studentsByselectStudent" parameterType="Student" resultMap="BaseResultMapWithOther">
+		SELECT student.*,c_name,ct_name FROM student
+		LEFT JOIN class ON class.c_id=s_class
+		LEFT JOIN class_type ON class_type.ct_id=s_classtype
+		<where>
+			<if test="sName!=null and sName!=''">
+				and s_name=#{sName}
+			</if>
+			<if test="sClass!=0 and sClass!=null">
+				and s_class=#{sClass}
+			</if>
+			<if test="sClasstype!=0 and sClasstype!=null">
+				and s_classtype=#{sClasstype}
+			</if>
+		</where>
+	</select>
+	<select id="selectByPrimaryKey" parameterType="java.lang.Integer"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from student
+		where s_id = #{sId,jdbcType=INTEGER}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from
+		student
+		where s_id = #{sId,jdbcType=INTEGER}
+	</delete>
+	<delete id="deleteByExample" parameterType="com.lv.po.StudentExample">
+		delete from student
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</delete>
+	<insert id="insert" parameterType="com.lv.po.Student">
+		insert into student (s_id,
+		s_name, s_sex,
+		s_class, s_classtype, s_phone,
+		s_address, s_date,
+		s_tuition,
+		s_pwd)
+		values (#{sId,jdbcType=INTEGER},
+		#{sName,jdbcType=VARCHAR},
+		#{sSex,jdbcType=CHAR},
+		#{sClass,jdbcType=INTEGER}, #{sClasstype,jdbcType=INTEGER},
+		#{sPhone,jdbcType=VARCHAR},
+		#{sAddress,jdbcType=VARCHAR},
+		#{sDate,jdbcType=TIMESTAMP},
+		#{sTuition,jdbcType=INTEGER},
+		#{sPwd,jdbcType=VARCHAR})
+	</insert>
+	<insert id="insertSelective" parameterType="com.lv.po.Student">
+		insert into student
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="sId != null">
+				s_id,
+			</if>
+			<if test="sName != null">
+				s_name,
+			</if>
+			<if test="sSex != null">
+				s_sex,
+			</if>
+			<if test="sClass != null">
+				s_class,
+			</if>
+			<if test="sClasstype != null">
+				s_classtype,
+			</if>
+			<if test="sPhone != null">
+				s_phone,
+			</if>
+			<if test="sAddress != null">
+				s_address,
+			</if>
+			<if test="sDate != null">
+				s_date,
+			</if>
+			<if test="sTuition != null">
+				s_tuition,
+			</if>
+			<if test="sPwd != null">
+				s_pwd,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="sId != null">
+				#{sId,jdbcType=INTEGER},
+			</if>
+			<if test="sName != null">
+				#{sName,jdbcType=VARCHAR},
+			</if>
+			<if test="sSex != null">
+				#{sSex,jdbcType=CHAR},
+			</if>
+			<if test="sClass != null">
+				#{sClass,jdbcType=INTEGER},
+			</if>
+			<if test="sClasstype != null">
+				#{sClasstype,jdbcType=INTEGER},
+			</if>
+			<if test="sPhone != null">
+				#{sPhone,jdbcType=VARCHAR},
+			</if>
+			<if test="sAddress != null">
+				#{sAddress,jdbcType=VARCHAR},
+			</if>
+			<if test="sDate != null">
+				#{sDate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="sTuition != null">
+				#{sTuition,jdbcType=INTEGER},
+			</if>
+			<if test="sPwd != null">
+				#{sPwd,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<select id="countByExample" parameterType="com.lv.po.StudentExample"
+		resultType="java.lang.Long">
+		select count(*) from student
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</select>
+	<update id="updateByExampleSelective" parameterType="map">
+		update student
+		<set>
+			<if test="record.sId != null">
+				s_id = #{record.sId,jdbcType=INTEGER},
+			</if>
+			<if test="record.sName != null">
+				s_name = #{record.sName,jdbcType=VARCHAR},
+			</if>
+			<if test="record.sSex != null">
+				s_sex = #{record.sSex,jdbcType=CHAR},
+			</if>
+			<if test="record.sClass != null">
+				s_class = #{record.sClass,jdbcType=INTEGER},
+			</if>
+			<if test="record.sClasstype != null">
+				s_classtype = #{record.sClasstype,jdbcType=INTEGER},
+			</if>
+			<if test="record.sPhone != null">
+				s_phone = #{record.sPhone,jdbcType=VARCHAR},
+			</if>
+			<if test="record.sAddress != null">
+				s_address = #{record.sAddress,jdbcType=VARCHAR},
+			</if>
+			<if test="record.sDate != null">
+				s_date = #{record.sDate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="record.sTuition != null">
+				s_tuition = #{record.sTuition,jdbcType=INTEGER},
+			</if>
+			<if test="record.sPwd != null">
+				s_pwd = #{record.sPwd,jdbcType=VARCHAR},
+			</if>
+		</set>
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+	<update id="updateByExample" parameterType="map">
+		update student
+		set s_id = #{record.sId,jdbcType=INTEGER},
+		s_name =
+		#{record.sName,jdbcType=VARCHAR},
+		s_sex = #{record.sSex,jdbcType=CHAR},
+		s_class = #{record.sClass,jdbcType=INTEGER},
+		s_classtype =
+		#{record.sClasstype,jdbcType=INTEGER},
+		s_phone =
+		#{record.sPhone,jdbcType=VARCHAR},
+		s_address =
+		#{record.sAddress,jdbcType=VARCHAR},
+		s_date =
+		#{record.sDate,jdbcType=TIMESTAMP},
+		s_tuition =
+		#{record.sTuition,jdbcType=INTEGER},
+		s_pwd =
+		#{record.sPwd,jdbcType=VARCHAR}
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+	<update id="updateByPrimaryKeySelective" parameterType="com.lv.po.Student">
+		update student
+		<set>
+			<if test="sName != null">
+				s_name = #{sName,jdbcType=VARCHAR},
+			</if>
+			<if test="sSex != null">
+				s_sex = #{sSex,jdbcType=CHAR},
+			</if>
+			<if test="sClass != null">
+				s_class = #{sClass,jdbcType=INTEGER},
+			</if>
+			<if test="sClasstype != null">
+				s_classtype = #{sClasstype,jdbcType=INTEGER},
+			</if>
+			<if test="sPhone != null">
+				s_phone = #{sPhone,jdbcType=VARCHAR},
+			</if>
+			<if test="sAddress != null">
+				s_address = #{sAddress,jdbcType=VARCHAR},
+			</if>
+			<if test="sDate != null">
+				s_date = #{sDate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="sTuition != null">
+				s_tuition = #{sTuition,jdbcType=INTEGER},
+			</if>
+			<if test="sPwd != null">
+				s_pwd = #{sPwd,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where s_id = #{sId,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.lv.po.Student">
+		update student
+		set
+		s_name = #{sName,jdbcType=VARCHAR},
+		s_sex = #{sSex,jdbcType=CHAR},
+		s_class = #{sClass,jdbcType=INTEGER},
+		s_classtype =
+		#{sClasstype,jdbcType=INTEGER},
+		s_phone = #{sPhone,jdbcType=VARCHAR},
+		s_address = #{sAddress,jdbcType=VARCHAR},
+		s_date =
+		#{sDate,jdbcType=TIMESTAMP},
+		s_tuition = #{sTuition,jdbcType=INTEGER},
+		s_pwd = #{sPwd,jdbcType=VARCHAR}
+		where s_id = #{sId,jdbcType=INTEGER}
+	</update>
+</mapper>

@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lv.dao.FackMapper">
+	<resultMap id="BaseResultMap" type="com.lv.po.Fack">
+		<id column="f_id" jdbcType="INTEGER" property="fId" />
+		<result column="f_start" jdbcType="VARCHAR" property="fStart" />
+		<result column="f_end" jdbcType="VARCHAR" property="fEnd" />
+		<result column="f_reason" jdbcType="VARCHAR" property="fReason" />
+		<result column="f_status" jdbcType="VARCHAR" property="fStatus" />
+		<result column="f_sId" jdbcType="INTEGER" property="fSid" />
+	</resultMap>
+	<resultMap id="BaseResultMapWithStudent" type="com.lv.po.Fack">
+		<id column="f_id" jdbcType="INTEGER" property="fId" />
+		<result column="f_start" jdbcType="VARCHAR" property="fStart" />
+		<result column="f_end" jdbcType="VARCHAR" property="fEnd" />
+		<result column="f_reason" jdbcType="VARCHAR" property="fReason" />
+		<result column="f_status" jdbcType="VARCHAR" property="fStatus" />
+		<result column="f_sId" jdbcType="INTEGER" property="fSid" />
+		<association property="student" javaType="Student">
+			<id column="s_id" property="sId" />
+			<result column="s_name" property="sName" />
+			<result column="s_class" property="sClass" />
+			<result column="s_classtype" property="sClasstype" />
+			<association property="studentClass" javaType="StudentClass">
+				<result column="c_name" property="cName" />
+			</association>
+			<association property="classType" javaType="ClassType">
+				<result column="ct_name" property="ctName" />
+			</association>
+		</association>
+	</resultMap>
+	<sql id="Example_Where_Clause">
+		<where>
+			<foreach collection="oredCriteria" item="criteria" separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" prefixOverrides="and" suffix=")">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach close=")" collection="criterion.value" item="listItem"
+										open="(" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<sql id="Update_By_Example_Where_Clause">
+		<where>
+			<foreach collection="example.oredCriteria" item="criteria"
+				separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" prefixOverrides="and" suffix=")">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach close=")" collection="criterion.value" item="listItem"
+										open="(" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<sql id="Base_Column_List">
+		f_id, f_start, f_end, f_reason, f_status, f_sId
+	</sql>
+	<select id="selectByExample" parameterType="com.lv.po.FackExample"
+		resultMap="BaseResultMap">
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from fack
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+	</select>
+	<select id="selectByPrimaryKey" parameterType="java.lang.Integer"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from fack
+		where f_id = #{fId,jdbcType=INTEGER}
+	</select>
+	<select id="selectAllNotPass" resultMap="BaseResultMapWithStudent">
+		SELECT * FROM fack
+		LEFT
+		JOIN student ON fack.`f_sId`=student.`s_id`
+		LEFT JOIN class ON
+		class.`c_id`=student.`s_class`
+		LEFT JOIN class_type ON
+		class_type.`ct_id`=student.`s_classtype`
+		WHERE fack.`f_status`="未审批"
+	</select>
+	<select id="facksByStudent" parameterType="Student" resultMap="BaseResultMapWithStudent">
+		SELECT * FROM fack
+		LEFT
+		JOIN student ON fack.`f_sId`=student.`s_id`
+		LEFT JOIN class ON
+		class.`c_id`=student.`s_class`
+		LEFT JOIN class_type ON
+		class_type.`ct_id`=student.`s_classtype`
+		<where>
+			and fack.`f_status`="未审批"
+			<if test="sName!='' and sName!=null">
+				and s_name=#{sName}
+			</if>
+			<if test="sClass!=0">
+				and s_class=#{sClass}
+			</if>
+			<if test="sClasstype!=0">
+				and s_classtype=#{sClasstype}
+			</if>
+		</where>
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from fack
+		where f_id = #{fId,jdbcType=INTEGER}
+	</delete>
+	<delete id="deleteByExample" parameterType="com.lv.po.FackExample">
+		delete from fack
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</delete>
+	<insert id="insert" parameterType="com.lv.po.Fack">
+		insert into fack (f_id,
+		f_start, f_end,
+		f_reason, f_status, f_sId
+		)
+		values
+		(#{fId,jdbcType=INTEGER}, #{fStart,jdbcType=VARCHAR},
+		#{fEnd,jdbcType=VARCHAR},
+		#{fReason,jdbcType=VARCHAR},
+		#{fStatus,jdbcType=VARCHAR}, #{fSid,jdbcType=INTEGER}
+		)
+	</insert>
+	<insert id="insertSelective" parameterType="com.lv.po.Fack">
+		insert into fack
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="fId != null">
+				f_id,
+			</if>
+			<if test="fStart != null">
+				f_start,
+			</if>
+			<if test="fEnd != null">
+				f_end,
+			</if>
+			<if test="fReason != null">
+				f_reason,
+			</if>
+			<if test="fStatus != null">
+				f_status,
+			</if>
+			<if test="fSid != null">
+				f_sId,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="fId != null">
+				#{fId,jdbcType=INTEGER},
+			</if>
+			<if test="fStart != null">
+				#{fStart,jdbcType=VARCHAR},
+			</if>
+			<if test="fEnd != null">
+				#{fEnd,jdbcType=VARCHAR},
+			</if>
+			<if test="fReason != null">
+				#{fReason,jdbcType=VARCHAR},
+			</if>
+			<if test="fStatus != null">
+				#{fStatus,jdbcType=VARCHAR},
+			</if>
+			<if test="fSid != null">
+				#{fSid,jdbcType=INTEGER},
+			</if>
+		</trim>
+	</insert>
+	<select id="countByExample" parameterType="com.lv.po.FackExample"
+		resultType="java.lang.Long">
+		select count(*) from fack
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</select>
+	<update id="updateByExampleSelective" parameterType="map">
+		update fack
+		<set>
+			<if test="record.fId != null">
+				f_id = #{record.fId,jdbcType=INTEGER},
+			</if>
+			<if test="record.fStart != null">
+				f_start = #{record.fStart,jdbcType=VARCHAR},
+			</if>
+			<if test="record.fEnd != null">
+				f_end = #{record.fEnd,jdbcType=VARCHAR},
+			</if>
+			<if test="record.fReason != null">
+				f_reason = #{record.fReason,jdbcType=VARCHAR},
+			</if>
+			<if test="record.fStatus != null">
+				f_status = #{record.fStatus,jdbcType=VARCHAR},
+			</if>
+			<if test="record.fSid != null">
+				f_sId = #{record.fSid,jdbcType=INTEGER},
+			</if>
+		</set>
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+	<update id="updateByExample" parameterType="map">
+		update fack
+		set f_id = #{record.fId,jdbcType=INTEGER},
+		f_start =
+		#{record.fStart,jdbcType=VARCHAR},
+		f_end =
+		#{record.fEnd,jdbcType=VARCHAR},
+		f_reason =
+		#{record.fReason,jdbcType=VARCHAR},
+		f_status =
+		#{record.fStatus,jdbcType=VARCHAR},
+		f_sId =
+		#{record.fSid,jdbcType=INTEGER}
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+	<update id="updateByPrimaryKeySelective" parameterType="com.lv.po.Fack">
+		update fack
+		<set>
+			<if test="fStart != null">
+				f_start = #{fStart,jdbcType=VARCHAR},
+			</if>
+			<if test="fEnd != null">
+				f_end = #{fEnd,jdbcType=VARCHAR},
+			</if>
+			<if test="fReason != null">
+				f_reason = #{fReason,jdbcType=VARCHAR},
+			</if>
+			<if test="fStatus != null">
+				f_status = #{fStatus,jdbcType=VARCHAR},
+			</if>
+			<if test="fSid != null">
+				f_sId = #{fSid,jdbcType=INTEGER},
+			</if>
+		</set>
+		where f_id = #{fId,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.lv.po.Fack">
+		update fack
+		set
+		f_start = #{fStart,jdbcType=VARCHAR},
+		f_end = #{fEnd,jdbcType=VARCHAR},
+		f_reason = #{fReason,jdbcType=VARCHAR},
+		f_status =
+		#{fStatus,jdbcType=VARCHAR},
+		f_sId = #{fSid,jdbcType=INTEGER}
+		where f_id
+		= #{fId,jdbcType=INTEGER}
+	</update>
+</mapper>
